@@ -173,13 +173,19 @@ export default function Home() {
     setUserSelections([]);
   };
 
+  const handleSkip = () => {
+    alert("Skipped! The correct answer was: " + currentRhythm.map((note) => note.name).join(", "));
+    setPoints((prev) => prev - 5);
+    newRhythm();
+  };
+
   const renderUserSelections = () => {
     return userSelections.map((note, index) => (
       <span
         key={index}
         className={`m-1 inline-block rounded px-2 py-1 ${
-          note.isRest ? "bg-gray-200" : "bg-blue-200"
-        } cursor-pointer hover:bg-red-200`}
+          note.isRest ? "bg-gray-200 dark:bg-gray-500" : "bg-blue-200 dark:bg-blue-500"
+        } cursor-pointer hover:bg-red-200 dark:hover:bg-red-500`}
         onClick={() =>
           setUserSelections((prev) => prev.filter((_, i) => i !== index))
         }
@@ -199,14 +205,9 @@ export default function Home() {
     setUserSelections([]);
   };
 
-  const skip = () => {
-    setPoints((prev) => prev - 5);
-    newRhythm();
-  };
-
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="max-w-md rounded-lg bg-white p-8 shadow-lg">
+    <div className="flex min-h-screen items-center justify-center bg-gray-100 dark:bg-gray-900">
+      <div className="max-w-md rounded-lg bg-white p-8 shadow-lg dark:bg-black">
         <h1 className="font-sans text-2xl font-bold">Rhythm Game</h1>
         <div className="my-4"></div>
         <h2 className="font-sans text-xl font-semibold">
@@ -236,7 +237,7 @@ export default function Home() {
         <div className="my-2 flex space-x-4">
           {!isPlaying && plays == 0 && (
             <button
-              className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+              className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-900"
               onClick={() => {
                 playRhythm();
                 setPlays(1);
@@ -252,7 +253,7 @@ export default function Home() {
           )}
           {!isPlaying && plays == 1 && (
             <button
-              className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+              className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-900"
               onClick={() => {
                 replayRhythm();
                 setPlays(2);
@@ -278,14 +279,14 @@ export default function Home() {
               {NOTES.map((note) => (
                 <button
                   key={note.name}
-                  className="rounded bg-blue-400 px-4 py-2 font-bold text-white hover:bg-blue-600"
+                  className="rounded bg-blue-400 px-4 py-2 font-bold text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-800"
                   onClick={() => handleNoteSelection(note)}
                 >
                   {note.name}
                 </button>
               ))}
               <button
-                className="rounded bg-gray-400 px-4 py-2 font-bold text-white hover:bg-gray-600"
+                className="rounded bg-gray-400 px-4 py-2 font-bold text-white hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-800"
                 onClick={() => handleNoteSelection(REST)}
               >
                 Rest
@@ -294,21 +295,21 @@ export default function Home() {
 
             <div className="mt-4 flex space-x-2">
               <button
-                className="rounded bg-green-500 px-4 py-2 font-bold text-white hover:bg-green-700"
+                className="rounded bg-green-500 px-4 py-2 font-bold text-white hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-900"
                 onClick={handleSubmit}
               >
                 Submit
               </button>
               <button
-                className="rounded bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700"
+                className="rounded bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-900"
                 onClick={handleReset}
               >
                 Reset
               </button>
               {!isPlaying && (
                 <button
-                  className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-                  onClick={skip}
+                  className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-900"
+                  onClick={handleSkip}
                 >
                   Skip (-5 points)
                 </button>
