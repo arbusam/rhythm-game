@@ -26,6 +26,7 @@ export default function Home() {
   const [currentRhythm, setCurrentRhythm] = useState<Array<typeof NOTES[0] | typeof REST>>([]);
   const [userSelections, setUserSelections] = useState<Array<typeof NOTES[0] | typeof REST>>([]);
   const [showNoteButtons, setShowNoteButtons] = useState(false);
+  const [plays, setPlays] = useState(0);
 
   useEffect(() => {
     const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -40,7 +41,7 @@ export default function Home() {
     const rhythm: Array<typeof NOTES[0] | typeof REST> = [];
 
     while (remainingSpace > 0) {
-      const willBeRest = remainingSpace === 16 || remainingSpace === 2
+      const willBeRest = remainingSpace == 16 || remainingSpace <= 4
       ? false
       : Math.random() < 0.5;
       
@@ -85,7 +86,7 @@ export default function Home() {
     if (!audioContext) return;
     
     setIsPlaying(true);
-    setUserSelections([]); // Clear previous selections
+    setUserSelections([]);
     setShowNoteButtons(false);
     
     const rhythm = generateRhythm();
@@ -101,19 +102,37 @@ export default function Home() {
       currentTime += note.duration;
     });
 
-    // Show note buttons after rhythm finishes playing
     setTimeout(() => {
       setIsPlaying(false);
       setShowNoteButtons(true);
     }, 2000);
   };
 
+  const replayRhythm = () => {
+    if (!audioContext) return;
+
+    setIsPlaying(true);
+
+    const startTime = audioContext.currentTime + 0.1;
+    let currentTime = 0;
+
+    currentRhythm.forEach(note => {
+      if (!note.isRest) {
+        playNote(startTime + currentTime, note.duration);
+      }
+      currentTime += note.duration;
+    });
+
+    setTimeout(() => {
+      setIsPlaying(false);
+    }, 2000);
+  }
+
   const handleNoteSelection = (note: typeof NOTES[0] | typeof REST) => {
     setUserSelections(prev => [...prev, note]);
   };
 
   const handleSubmit = () => {
-    // Compare userSelections with currentRhythm
     const isCorrect = userSelections.length === currentRhythm.length &&
       userSelections.every((note, index) => note.name === currentRhythm[index].name);
     
@@ -135,12 +154,17 @@ export default function Home() {
         key={index}
         className={`inline-block px-2 py-1 m-1 rounded ${
           note.isRest ? 'bg-gray-200' : 'bg-blue-200'
-        }`}
+        } hover:bg-red-200 cursor-pointer`}
+        onClick={() => setUserSelections(prev => prev.filter((_, i) => i !== index))}
       >
         {note.name}
       </span>
     ));
   };
+
+  const calculateTotalBeats = () => {
+    return userSelections.reduce((acc, note) => acc + note.duration * 2, 0);
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -158,14 +182,19 @@ export default function Home() {
         <p>2. Listen to the rhythm and remember it.</p>
         <p>3. Use the note buttons to recreate the rhythm you heard.</p>
         <p>4. Click submit when you're ready, or reset to try again.</p>
+        <div className="my-1"></div>
+        <p>TIP: All rests are worth 1 beat and can not appear first or last.</p>
         <div className="my-4"></div>
         <p className="font-semibold">Points: {points}</p>
         
         <div className="flex space-x-4 my-2">
-          {!isPlaying && (
+          {!isPlaying && plays == 0 && (
             <button
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              onClick={() => playRhythm()}
+              onClick={() => {
+                playRhythm();
+                setPlays(1);
+              }}
             >
               Start
             </button>
@@ -175,12 +204,23 @@ export default function Home() {
               <p>Playing...</p>
             </div>
           )}
+          {!isPlaying && plays == 1 && (
+            <button
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              onClick={() => {
+                replayRhythm();
+                setPlays(2);
+              }}
+            >
+              Replay
+            </button>
+          )}
         </div>
 
         {showNoteButtons && (
           <div className="mt-4">
             <div className="mb-4">
-              <p className="font-semibold">Your selections:</p>
+              <p className="font-semibold">Your selections: ({calculateTotalBeats()} beats)</p>
               <div className="min-h-[40px] border rounded p-2 my-2">
                 {renderUserSelections()}
               </div>
