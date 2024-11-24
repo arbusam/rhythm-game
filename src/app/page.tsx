@@ -174,7 +174,10 @@ export default function Home() {
   };
 
   const handleSkip = () => {
-    alert("Skipped! The correct answer was: " + currentRhythm.map((note) => note.name).join(", "));
+    alert(
+      "Skipped! The correct answer was: " +
+        currentRhythm.map((note) => note.name).join(", "),
+    );
     setPoints((prev) => prev - 5);
     newRhythm();
   };
@@ -184,7 +187,9 @@ export default function Home() {
       <span
         key={index}
         className={`m-1 inline-block rounded px-2 py-1 ${
-          note.isRest ? "bg-gray-200 dark:bg-gray-500" : "bg-blue-200 dark:bg-blue-500"
+          note.isRest
+            ? "bg-gray-200 dark:bg-gray-500"
+            : "bg-blue-200 dark:bg-blue-500"
         } cursor-pointer hover:bg-red-200 dark:hover:bg-red-500`}
         onClick={() =>
           setUserSelections((prev) => prev.filter((_, i) => i !== index))
