@@ -18,13 +18,14 @@ const NOTES = [
 
 const REST = { value: NOTE_VALUES.REST, name: 'Rest', duration: 0.5, isRest: true };
 
-
 export default function Home() {
   const [playing, setPlaying] = useState(false);
   const [points, setPoints] = useState(0);
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentRhythm, setCurrentRhythm] = useState<Array<typeof NOTES[0] | typeof REST>>([]);
+  const [userSelections, setUserSelections] = useState<Array<typeof NOTES[0] | typeof REST>>([]);
+  const [showNoteButtons, setShowNoteButtons] = useState(false);
 
   useEffect(() => {
     const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -39,7 +40,6 @@ export default function Home() {
     const rhythm: Array<typeof NOTES[0] | typeof REST> = [];
 
     while (remainingSpace > 0) {
-      // Determine if this will be a note or a rest (20% chance of rest)
       const willBeRest = Math.random() < 0.2;
       
       const availableChoices = willBeRest 
@@ -48,7 +48,6 @@ export default function Home() {
 
       if (availableChoices.length === 0) break;
 
-      // Randomly select from available choices
       const selectedNote = availableChoices[Math.floor(Math.random() * availableChoices.length)];
       rhythm.push(selectedNote);
       remainingSpace -= selectedNote.value;
@@ -66,18 +65,13 @@ export default function Home() {
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
 
-    // Set initial frequency and gain
     oscillator.frequency.setValueAtTime(440, time);
     gainNode.gain.setValueAtTime(0.5, time);
 
-    // Create slight attack and release for smoother sound
     const attackTime = 0.02;
     const releaseTime = 0.05;
     
-    // Attack
     gainNode.gain.linearRampToValueAtTime(0.5, time + attackTime);
-    
-    // Release - start release before the end of the note
     gainNode.gain.setValueAtTime(0.5, time + duration - releaseTime);
     gainNode.gain.linearRampToValueAtTime(0.01, time + duration);
 
@@ -89,27 +83,52 @@ export default function Home() {
     if (!audioContext) return;
     
     setIsPlaying(true);
+    setUserSelections([]); // Clear previous selections
+    setShowNoteButtons(false);
+    
     const rhythm = generateRhythm();
     setCurrentRhythm(rhythm);
 
     const startTime = audioContext.currentTime + 0.1;
     let currentTime = 0;
 
-    // Play each note in the rhythm
     rhythm.forEach(note => {
       if (!note.isRest) {
         playNote(startTime + currentTime, note.duration);
       }
-      // Always advance the time by the note's duration, even for rests
       currentTime += note.duration;
     });
 
-    // Stop playing after the rhythm completes (2 seconds for one bar at 120 BPM)
-    setTimeout(() => setIsPlaying(false), 2000);
+    // Show note buttons after rhythm finishes playing
+    setTimeout(() => {
+      setIsPlaying(false);
+      setShowNoteButtons(true);
+    }, 2000);
   };
 
-  const renderRhythmNotation = () => {
-    return currentRhythm.map((note, index) => (
+  const handleNoteSelection = (note: typeof NOTES[0] | typeof REST) => {
+    setUserSelections(prev => [...prev, note]);
+  };
+
+  const handleSubmit = () => {
+    // Compare userSelections with currentRhythm
+    const isCorrect = userSelections.length === currentRhythm.length &&
+      userSelections.every((note, index) => note.name === currentRhythm[index].name);
+    
+    if (isCorrect) {
+      setPoints(prev => prev + 10);
+      alert('Correct! +10 points');
+    } else {
+      alert('Try again!');
+    }
+  };
+
+  const handleReset = () => {
+    setUserSelections([]);
+  };
+
+  const renderUserSelections = () => {
+    return userSelections.map((note, index) => (
       <span 
         key={index}
         className={`inline-block px-2 py-1 m-1 rounded ${
@@ -135,30 +154,70 @@ export default function Home() {
         <h3 className="font-sans text-lg font-semibold">Instructions:</h3>
         <p>1. Click the start button to begin the game.</p>
         <p>2. Listen to the rhythm and remember it.</p>
-        <p>3. Click start again to start the metronome.</p>
-        <p>
-          4. When you're ready, click the button in the correct rhythm and watch
-          it appear.
-        </p>
-        <p>
-          5. If you are happy with your submission, click submit. Otherwise, click
-          retry.
-        </p>
+        <p>3. Use the note buttons to recreate the rhythm you heard.</p>
+        <p>4. Click submit when you're ready, or reset to try again.</p>
         <div className="my-4"></div>
         <p className="font-semibold">Points: {points}</p>
+        
         <div className="flex space-x-4 my-2">
-          {!isPlaying && (<button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            onClick={() => playRhythm()}
-          >
-            Start
-          </button>)}
-            {isPlaying && (
+          {!isPlaying && (
+            <button
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              onClick={() => playRhythm()}
+            >
+              Start
+            </button>
+          )}
+          {isPlaying && (
             <div className="flex items-center">
               <p>Playing...</p>
             </div>
-            )}
+          )}
         </div>
+
+        {showNoteButtons && (
+          <div className="mt-4">
+            <div className="mb-4">
+              <p className="font-semibold">Your selections:</p>
+              <div className="min-h-[40px] border rounded p-2 my-2">
+                {renderUserSelections()}
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2">
+              {NOTES.map((note) => (
+                <button
+                  key={note.name}
+                  className="bg-blue-400 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                  onClick={() => handleNoteSelection(note)}
+                >
+                  {note.name}
+                </button>
+              ))}
+              <button
+                className="bg-gray-400 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+                onClick={() => handleNoteSelection(REST)}
+              >
+                Rest
+              </button>
+            </div>
+
+            <div className="flex space-x-2 mt-4">
+              <button
+                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                onClick={handleSubmit}
+              >
+                Submit
+              </button>
+              <button
+                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                onClick={handleReset}
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
