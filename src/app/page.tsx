@@ -187,7 +187,7 @@ export default function Home() {
         <h2 className="font-sans text-xl font-semibold">Click start to begin</h2>
         <div className="my-4"></div>
         <p>
-          Please note: You must have speakers or headphones to play this game.
+          Please note: You must have speakers or headphones to play this game. You must also be using a chromium based browser (Chrome, Edge, Brave, etc). This will not work on iPhone.
         </p>
         <div className="my-2"></div>
         <h3 className="font-sans text-lg font-semibold">Instructions:</h3>
