@@ -1,35 +1,53 @@
-'use client'
+"use client";
 
-import Image from "next/image";
 import { useState, useEffect } from "react";
+
+// Add this interface above your component
+interface WindowWithWebkit extends Window {
+  webkitAudioContext: typeof AudioContext;
+}
 
 const NOTE_VALUES = {
   MINIM: 8,
   CROTCHET: 4,
   QUAVER: 2,
-  REST: 4
+  REST: 4,
 };
 
 const NOTES = [
-  { value: NOTE_VALUES.MINIM, name: 'Minim', duration: 1.0, isRest: false },
-  { value: NOTE_VALUES.CROTCHET, name: 'Crotchet', duration: 0.5, isRest: false },
-  { value: NOTE_VALUES.QUAVER, name: 'Quaver', duration: 0.25, isRest: false },
+  { value: NOTE_VALUES.MINIM, name: "Minim", duration: 1.0, isRest: false },
+  {
+    value: NOTE_VALUES.CROTCHET,
+    name: "Crotchet",
+    duration: 0.5,
+    isRest: false,
+  },
+  { value: NOTE_VALUES.QUAVER, name: "Quaver", duration: 0.25, isRest: false },
 ];
 
-const REST = { value: NOTE_VALUES.REST, name: 'Rest', duration: 0.5, isRest: true };
+const REST = {
+  value: NOTE_VALUES.REST,
+  name: "Rest",
+  duration: 0.5,
+  isRest: true,
+};
 
 export default function Home() {
-  const [playing, setPlaying] = useState(false);
   const [points, setPoints] = useState(0);
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentRhythm, setCurrentRhythm] = useState<Array<typeof NOTES[0] | typeof REST>>([]);
-  const [userSelections, setUserSelections] = useState<Array<typeof NOTES[0] | typeof REST>>([]);
+  const [currentRhythm, setCurrentRhythm] = useState<
+    Array<(typeof NOTES)[0] | typeof REST>
+  >([]);
+  const [userSelections, setUserSelections] = useState<
+    Array<(typeof NOTES)[0] | typeof REST>
+  >([]);
   const [showNoteButtons, setShowNoteButtons] = useState(false);
   const [plays, setPlays] = useState(0);
 
   useEffect(() => {
-    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const ctx = new (window.AudioContext ||
+      (window as unknown as WindowWithWebkit).webkitAudioContext)();
     setAudioContext(ctx);
     return () => {
       ctx.close();
@@ -38,20 +56,22 @@ export default function Home() {
 
   const generateRhythm = () => {
     let remainingSpace = 16; // One bar in 16th notes
-    const rhythm: Array<typeof NOTES[0] | typeof REST> = [];
+    const rhythm: Array<(typeof NOTES)[0] | typeof REST> = [];
 
     while (remainingSpace > 0) {
-      const willBeRest = remainingSpace == 16 || remainingSpace <= 4
-      ? false
-      : Math.random() < 0.5;
-      
-      const availableChoices = willBeRest 
+      const willBeRest =
+        remainingSpace == 16 || remainingSpace <= 4
+          ? false
+          : Math.random() < 0.5;
+
+      const availableChoices = willBeRest
         ? [REST]
-        : NOTES.filter(note => note.value <= remainingSpace);
+        : NOTES.filter((note) => note.value <= remainingSpace);
 
       if (availableChoices.length === 0) break;
 
-      const selectedNote = availableChoices[Math.floor(Math.random() * availableChoices.length)];
+      const selectedNote =
+        availableChoices[Math.floor(Math.random() * availableChoices.length)];
       rhythm.push(selectedNote);
       remainingSpace -= selectedNote.value;
     }
@@ -73,7 +93,7 @@ export default function Home() {
 
     const attackTime = 0.02;
     const releaseTime = 0.05;
-    
+
     gainNode.gain.linearRampToValueAtTime(0.5, time + attackTime);
     gainNode.gain.setValueAtTime(0.5, time + duration - releaseTime);
     gainNode.gain.linearRampToValueAtTime(0.01, time + duration);
@@ -84,18 +104,18 @@ export default function Home() {
 
   const playRhythm = async () => {
     if (!audioContext) return;
-    
+
     setIsPlaying(true);
     setUserSelections([]);
     setShowNoteButtons(false);
-    
+
     const rhythm = generateRhythm();
     setCurrentRhythm(rhythm);
 
     const startTime = audioContext.currentTime + 0.1;
     let currentTime = 0;
 
-    rhythm.forEach(note => {
+    rhythm.forEach((note) => {
       if (!note.isRest) {
         playNote(startTime + currentTime, note.duration);
       }
@@ -116,7 +136,7 @@ export default function Home() {
     const startTime = audioContext.currentTime + 0.1;
     let currentTime = 0;
 
-    currentRhythm.forEach(note => {
+    currentRhythm.forEach((note) => {
       if (!note.isRest) {
         playNote(startTime + currentTime, note.duration);
       }
@@ -126,23 +146,26 @@ export default function Home() {
     setTimeout(() => {
       setIsPlaying(false);
     }, 2000);
-  }
+  };
 
-  const handleNoteSelection = (note: typeof NOTES[0] | typeof REST) => {
-    setUserSelections(prev => [...prev, note]);
+  const handleNoteSelection = (note: (typeof NOTES)[0] | typeof REST) => {
+    setUserSelections((prev) => [...prev, note]);
   };
 
   const handleSubmit = () => {
-    const isCorrect = userSelections.length === currentRhythm.length &&
-      userSelections.every((note, index) => note.name === currentRhythm[index].name);
-    
+    const isCorrect =
+      userSelections.length === currentRhythm.length &&
+      userSelections.every(
+        (note, index) => note.name === currentRhythm[index].name,
+      );
+
     if (isCorrect) {
-      setPoints(prev => prev + 10);
-      alert('Correct! +10 points');
+      setPoints((prev) => prev + 10);
+      alert("Correct! +10 points");
       newRhythm();
     } else {
-      setPoints(prev => prev - 10);
-      alert('Try again! -10 points');
+      setPoints((prev) => prev - 10);
+      alert("Try again! -10 points");
     }
   };
 
@@ -152,12 +175,14 @@ export default function Home() {
 
   const renderUserSelections = () => {
     return userSelections.map((note, index) => (
-      <span 
+      <span
         key={index}
-        className={`inline-block px-2 py-1 m-1 rounded ${
-          note.isRest ? 'bg-gray-200' : 'bg-blue-200'
-        } hover:bg-red-200 cursor-pointer`}
-        onClick={() => setUserSelections(prev => prev.filter((_, i) => i !== index))}
+        className={`m-1 inline-block rounded px-2 py-1 ${
+          note.isRest ? "bg-gray-200" : "bg-blue-200"
+        } cursor-pointer hover:bg-red-200`}
+        onClick={() =>
+          setUserSelections((prev) => prev.filter((_, i) => i !== index))
+        }
       >
         {note.name}
       </span>
@@ -166,28 +191,32 @@ export default function Home() {
 
   const calculateTotalBeats = () => {
     return userSelections.reduce((acc, note) => acc + note.duration * 2, 0);
-  }
+  };
 
   const newRhythm = () => {
     setPlays(0);
     setShowNoteButtons(false);
     setUserSelections([]);
-  }
+  };
 
   const skip = () => {
-    setPoints(prev => prev - 5);
+    setPoints((prev) => prev - 5);
     newRhythm();
-  }
+  };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md">
+    <div className="flex min-h-screen items-center justify-center bg-gray-100">
+      <div className="max-w-md rounded-lg bg-white p-8 shadow-lg">
         <h1 className="font-sans text-2xl font-bold">Rhythm Game</h1>
         <div className="my-4"></div>
-        <h2 className="font-sans text-xl font-semibold">Click start to begin</h2>
+        <h2 className="font-sans text-xl font-semibold">
+          Click start to begin
+        </h2>
         <div className="my-4"></div>
         <p>
-          Please note: You must have speakers or headphones to play this game. You must also be using a chromium based browser (Chrome, Edge, Brave, etc). This will not work on iPhone.
+          Please note: You must have speakers or headphones to play this game.
+          You must also be using a chromium based browser (Chrome, Edge, Brave,
+          etc). This will not work on iPhone.
         </p>
         <div className="my-2"></div>
         <h3 className="font-sans text-lg font-semibold">Instructions:</h3>
@@ -195,16 +224,19 @@ export default function Home() {
         <p>2. Listen to the rhythm and remember it.</p>
         <p>3. Use the note buttons to recreate the rhythm you heard.</p>
         <p>4. If you need to hear it again, you can replay it once.</p>
-        <p>5. Click submit when you're ready, or skip to try a different one.</p>
+        <p>
+          5. Click submit when you&apos;re ready, or skip to try a different
+          one.
+        </p>
         <div className="my-1"></div>
         <p>TIP: All rests are worth 1 beat and can not appear first or last.</p>
         <div className="my-4"></div>
         <p className="font-semibold">Points: {points}</p>
-        
-        <div className="flex space-x-4 my-2">
+
+        <div className="my-2 flex space-x-4">
           {!isPlaying && plays == 0 && (
             <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
               onClick={() => {
                 playRhythm();
                 setPlays(1);
@@ -220,7 +252,7 @@ export default function Home() {
           )}
           {!isPlaying && plays == 1 && (
             <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
               onClick={() => {
                 replayRhythm();
                 setPlays(2);
@@ -234,49 +266,53 @@ export default function Home() {
         {showNoteButtons && (
           <div className="mt-4">
             <div className="mb-4">
-              <p className="font-semibold">Your selections: ({calculateTotalBeats()} beats)</p>
-              <div className="min-h-[40px] border rounded p-2 my-2">
+              <p className="font-semibold">
+                Your selections: ({calculateTotalBeats()} beats)
+              </p>
+              <div className="my-2 min-h-[40px] rounded border p-2">
                 {renderUserSelections()}
               </div>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-2">
               {NOTES.map((note) => (
                 <button
                   key={note.name}
-                  className="bg-blue-400 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                  className="rounded bg-blue-400 px-4 py-2 font-bold text-white hover:bg-blue-600"
                   onClick={() => handleNoteSelection(note)}
                 >
                   {note.name}
                 </button>
               ))}
               <button
-                className="bg-gray-400 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+                className="rounded bg-gray-400 px-4 py-2 font-bold text-white hover:bg-gray-600"
                 onClick={() => handleNoteSelection(REST)}
               >
                 Rest
               </button>
             </div>
 
-            <div className="flex space-x-2 mt-4">
+            <div className="mt-4 flex space-x-2">
               <button
-                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                className="rounded bg-green-500 px-4 py-2 font-bold text-white hover:bg-green-700"
                 onClick={handleSubmit}
               >
                 Submit
               </button>
               <button
-                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                className="rounded bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700"
                 onClick={handleReset}
               >
                 Reset
               </button>
-              {!isPlaying && (<button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                onClick={skip}
+              {!isPlaying && (
+                <button
+                  className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+                  onClick={skip}
                 >
                   Skip (-5 points)
-                </button>)}
+                </button>
+              )}
             </div>
           </div>
         )}
