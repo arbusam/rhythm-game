@@ -40,7 +40,9 @@ export default function Home() {
     const rhythm: Array<typeof NOTES[0] | typeof REST> = [];
 
     while (remainingSpace > 0) {
-      const willBeRest = Math.random() < 0.2;
+      const willBeRest = remainingSpace === 16 || remainingSpace === 2
+      ? false
+      : Math.random() < 0.5;
       
       const availableChoices = willBeRest 
         ? [REST]
