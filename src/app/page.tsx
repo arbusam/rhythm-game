@@ -139,8 +139,10 @@ export default function Home() {
     if (isCorrect) {
       setPoints(prev => prev + 10);
       alert('Correct! +10 points');
+      newRhythm();
     } else {
-      alert('Try again!');
+      setPoints(prev => prev - 10);
+      alert('Try again! -10 points');
     }
   };
 
@@ -166,6 +168,17 @@ export default function Home() {
     return userSelections.reduce((acc, note) => acc + note.duration * 2, 0);
   }
 
+  const newRhythm = () => {
+    setPlays(0);
+    setShowNoteButtons(false);
+    setUserSelections([]);
+  }
+
+  const skip = () => {
+    setPoints(prev => prev - 5);
+    newRhythm();
+  }
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-md">
@@ -181,7 +194,8 @@ export default function Home() {
         <p>1. Click the start button to begin the game.</p>
         <p>2. Listen to the rhythm and remember it.</p>
         <p>3. Use the note buttons to recreate the rhythm you heard.</p>
-        <p>4. Click submit when you're ready, or reset to try again.</p>
+        <p>4. If you need to hear it again, you can replay it once.</p>
+        <p>5. Click submit when you're ready, or skip to try a different one.</p>
         <div className="my-1"></div>
         <p>TIP: All rests are worth 1 beat and can not appear first or last.</p>
         <div className="my-4"></div>
@@ -257,6 +271,12 @@ export default function Home() {
               >
                 Reset
               </button>
+              {!isPlaying && (<button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                onClick={skip}
+                >
+                  Skip (-5 points)
+                </button>)}
             </div>
           </div>
         )}
