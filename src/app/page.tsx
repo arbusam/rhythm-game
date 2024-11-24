@@ -284,18 +284,28 @@ export default function Home() {
               {NOTES.map((note) => (
                 <button
                   key={note.name}
-                  className="rounded bg-blue-400 px-4 py-2 font-bold text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-800"
+                  className={`rounded px-4 py-2 font-bold text-white ${
+                  calculateTotalBeats() + note.duration * 2 > 4
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-blue-400 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-800'
+                  }`}
                   onClick={() => handleNoteSelection(note)}
+                  disabled={calculateTotalBeats() + note.duration * 2 > 4}
                 >
                   {note.name}
                 </button>
               ))}
-              <button
-                className="rounded bg-gray-400 px-4 py-2 font-bold text-white hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-800"
+                <button
+                className={`rounded px-4 py-2 font-bold text-white ${
+                  calculateTotalBeats() + REST.duration * 2 > 4
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-gray-400 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-800'
+                }`}
                 onClick={() => handleNoteSelection(REST)}
-              >
+                disabled={calculateTotalBeats() + REST.duration * 2 > 4}
+                >
                 Rest
-              </button>
+                </button>
             </div>
 
             <div className="mt-4 flex space-x-2">
