@@ -33,7 +33,7 @@ export default function Home() {
   const [showNoteButtons, setShowNoteButtons] = useState(false);
   const [plays, setPlays] = useState(0);
   const [highScore, setHighScore] = useState(0);
-  const [noteNames, setNoteNames] = useState([
+  const noteNames = [
     { value: NOTE_VALUES.MINIM, name: "Minim", duration: 1.0, isRest: false },
     {
       value: NOTE_VALUES.CROTCHET,
@@ -47,7 +47,7 @@ export default function Home() {
       duration: 0.25,
       isRest: false,
     },
-  ]);
+  ];
   const [useAmericanNotation, setUseAmericanNotation] = useState(false);
 
   useEffect(() => {
