@@ -43,6 +43,7 @@ export default function Home() {
   >([]);
   const [showNoteButtons, setShowNoteButtons] = useState(false);
   const [plays, setPlays] = useState(0);
+  const [highScore, setHighScore] = useState(0);
 
   useEffect(() => {
     const ctx = new (window.AudioContext ||
@@ -52,6 +53,24 @@ export default function Home() {
       ctx.close();
     };
   }, []);
+
+  useEffect(() => {
+    if (typeof(Storage) !== "undefined" && typeof window !== "undefined") {
+      const highScore = localStorage.getItem("highScore");
+      if (highScore) {
+        setHighScore(parseInt(highScore));
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof(Storage) !== "undefined" && typeof window !== "undefined") {
+      if (points > highScore) {
+        setHighScore(points);
+        localStorage.setItem("highScore", points.toString());
+      }
+    }
+  }, [points]);
 
   const generateRhythm = () => {
     let remainingSpace = 16; // One bar in 16th notes
