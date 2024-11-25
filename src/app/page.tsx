@@ -55,7 +55,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (typeof(Storage) !== "undefined" && typeof window !== "undefined") {
+    if (typeof Storage !== "undefined" && typeof window !== "undefined") {
       const highScore = localStorage.getItem("highScore");
       if (highScore) {
         setHighScore(parseInt(highScore));
@@ -64,7 +64,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (typeof(Storage) !== "undefined" && typeof window !== "undefined") {
+    if (typeof Storage !== "undefined" && typeof window !== "undefined") {
       if (points > highScore) {
         setHighScore(points);
         localStorage.setItem("highScore", points.toString());
@@ -236,12 +236,14 @@ export default function Home() {
             <div className="rounded-lg bg-white p-8 shadow-lg dark:bg-black">
               <h1 className="font-sans text-2xl font-bold">Rhythm Game</h1>
               <div className="my-4"></div>
-              <h2 className="font-sans text-xl font-semibold">Click start to begin</h2>
+              <h2 className="font-sans text-xl font-semibold">
+                Click start to begin
+              </h2>
               <div className="my-4"></div>
               <p>
-                Please note: You must have speakers or headphones to play this game.
-                You must also be using a chromium based browser (Chrome, Edge, Brave,
-                etc). This will not work on iPhone.
+                Please note: You must have speakers or headphones to play this
+                game. You must also be using a chromium based browser (Chrome,
+                Edge, Brave, etc). This will not work on iPhone.
               </p>
               <div className="my-2"></div>
               <h3 className="font-sans text-lg font-semibold">Instructions:</h3>
@@ -249,9 +251,15 @@ export default function Home() {
               <p>2. Listen to the rhythm and remember it.</p>
               <p>3. Use the note buttons to recreate the rhythm you heard.</p>
               <p>4. If you need to hear it again, you can replay it once.</p>
-              <p>5. Click submit when you&apos;re ready, or skip to try a different one.</p>
+              <p>
+                5. Click submit when you&apos;re ready, or skip to try a
+                different one.
+              </p>
               <div className="my-1"></div>
-              <p>TIP: All rests are worth 1 beat and can not appear first or last.</p>
+              <p>
+                TIP: All rests are worth 1 beat and can not appear first or
+                last.
+              </p>
               <div className="my-4"></div>
               <p className="font-semibold">Points: {points}</p>
 
@@ -288,7 +296,9 @@ export default function Home() {
               {showNoteButtons && (
                 <div className="mt-4">
                   <div className="mb-4">
-                    <p className="font-semibold">Your selections: ({calculateTotalBeats()} beats)</p>
+                    <p className="font-semibold">
+                      Your selections: ({calculateTotalBeats()} beats)
+                    </p>
                     <div className="my-2 min-h-[40px] rounded border p-2">
                       {renderUserSelections()}
                     </div>
@@ -350,10 +360,11 @@ export default function Home() {
           </div>
         </main>
 
-        <footer className="mt-8 w-full bg-gray-100 px-4 py-6 dark:bg-gray-700">
+        <footer className="mt-8 w-full bg-gray-100 px-4 py-5 dark:bg-gray-700">
           <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
             <span className="text-sm text-gray-500 dark:text-gray-300">
-              © 2024 <a href="https://flowbite.com/">Arhan Busam</a>. All Rights Reserved.
+              © 2024 <a href="https://flowbite.com/">Arhan Busam</a>. All
+              Rights Reserved.
             </span>
             <div className="flex space-x-5 rtl:space-x-reverse">
               <a
