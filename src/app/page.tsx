@@ -13,17 +13,6 @@ const NOTE_VALUES = {
   REST: 4,
 };
 
-const NOTES = [
-  { value: NOTE_VALUES.MINIM, name: "Minim", duration: 1.0, isRest: false },
-  {
-    value: NOTE_VALUES.CROTCHET,
-    name: "Crotchet",
-    duration: 0.5,
-    isRest: false,
-  },
-  { value: NOTE_VALUES.QUAVER, name: "Quaver", duration: 0.25, isRest: false },
-];
-
 const REST = {
   value: NOTE_VALUES.REST,
   name: "Rest",
@@ -36,14 +25,30 @@ export default function Home() {
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentRhythm, setCurrentRhythm] = useState<
-    Array<(typeof NOTES)[0] | typeof REST>
+    Array<(typeof noteNames)[0] | typeof REST>
   >([]);
   const [userSelections, setUserSelections] = useState<
-    Array<(typeof NOTES)[0] | typeof REST>
+    Array<(typeof noteNames)[0] | typeof REST>
   >([]);
   const [showNoteButtons, setShowNoteButtons] = useState(false);
   const [plays, setPlays] = useState(0);
   const [highScore, setHighScore] = useState(0);
+  const [noteNames, setNoteNames] = useState([
+    { value: NOTE_VALUES.MINIM, name: "Minim", duration: 1.0, isRest: false },
+    {
+      value: NOTE_VALUES.CROTCHET,
+      name: "Crotchet",
+      duration: 0.5,
+      isRest: false,
+    },
+    {
+      value: NOTE_VALUES.QUAVER,
+      name: "Quaver",
+      duration: 0.25,
+      isRest: false,
+    },
+  ]);
+  const [useAmericanNotation, setUseAmericanNotation] = useState(false);
 
   useEffect(() => {
     const ctx = new (window.AudioContext ||
@@ -74,7 +79,7 @@ export default function Home() {
 
   const generateRhythm = () => {
     let remainingSpace = 16; // One bar in 16th notes
-    const rhythm: Array<(typeof NOTES)[0] | typeof REST> = [];
+    const rhythm: Array<(typeof noteNames)[0] | typeof REST> = [];
 
     while (remainingSpace > 0) {
       const willBeRest =
@@ -84,7 +89,7 @@ export default function Home() {
 
       const availableChoices = willBeRest
         ? [REST]
-        : NOTES.filter((note) => note.value <= remainingSpace);
+        : noteNames.filter((note) => note.value <= remainingSpace);
 
       if (availableChoices.length === 0) break;
 
@@ -166,7 +171,7 @@ export default function Home() {
     }, 2000);
   };
 
-  const handleNoteSelection = (note: (typeof NOTES)[0] | typeof REST) => {
+  const handleNoteSelection = (note: (typeof noteNames)[0] | typeof REST) => {
     setUserSelections((prev) => [...prev, note]);
   };
 
@@ -194,7 +199,7 @@ export default function Home() {
   const handleSkip = () => {
     alert(
       "Skipped! The correct answer was: " +
-        currentRhythm.map((note) => note.name).join(", "),
+        currentRhythm.map((note) => getNoteName(note.name)).join(", "),
     );
     setPoints((prev) => prev - 5);
     newRhythm();
@@ -213,7 +218,7 @@ export default function Home() {
           setUserSelections((prev) => prev.filter((_, i) => i !== index))
         }
       >
-        {note.name}
+        {getNoteName(note.name)}
       </span>
     ));
   };
@@ -226,6 +231,24 @@ export default function Home() {
     setPlays(0);
     setShowNoteButtons(false);
     setUserSelections([]);
+  };
+
+  const handleNotationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUseAmericanNotation(e.target.checked);
+  };
+
+  const getNoteName = (name: string) => {
+    if (!useAmericanNotation) return name;
+    switch (name) {
+      case "Minim":
+        return "Half Note";
+      case "Crotchet":
+        return "Quarter Note";
+      case "Quaver":
+        return "Eighth Note";
+      default:
+        return name;
+    }
   };
 
   return (
@@ -296,6 +319,23 @@ export default function Home() {
               {showNoteButtons && (
                 <div className="mt-4">
                   <div className="mb-4">
+                    <label className="flex items-center">
+                      <input
+                        id="notation-checkbox"
+                        type="checkbox"
+                        checked={useAmericanNotation}
+                        className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+                        onChange={handleNotationChange}
+                      />
+                      <label
+                        htmlFor="notation-checkbox"
+                        className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                      >
+                        Use American Notation (Quarter Notes)
+                      </label>
+                    </label>
+                  </div>
+                  <div className="mb-4">
                     <p className="font-semibold">
                       Your selections: ({calculateTotalBeats()} beats)
                     </p>
@@ -305,7 +345,7 @@ export default function Home() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
-                    {NOTES.map((note) => (
+                    {noteNames.map((note) => (
                       <button
                         key={note.name}
                         className={`rounded px-4 py-2 font-bold text-white ${
@@ -316,7 +356,7 @@ export default function Home() {
                         onClick={() => handleNoteSelection(note)}
                         disabled={calculateTotalBeats() + note.duration * 2 > 4}
                       >
-                        {note.name}
+                        {getNoteName(note.name)}
                       </button>
                     ))}
                     <button
