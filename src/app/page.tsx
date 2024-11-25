@@ -266,7 +266,7 @@ export default function Home() {
               <p>
                 Please note: You must have speakers or headphones to play this
                 game. This has only been tested on a chromium based browser (Chrome,
-                Edge, Brave, etc). If you are using a mobile phone and can't hear anything, turn off silent mode.
+                Edge, Brave, etc). If you are using a mobile phone and can&apos;t hear anything, turn off silent mode.
               </p>
               <div className="my-2"></div>
               <h3 className="font-sans text-lg font-semibold">Instructions:</h3>
