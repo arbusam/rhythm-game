@@ -265,8 +265,8 @@ export default function Home() {
               <div className="my-4"></div>
               <p>
                 Please note: You must have speakers or headphones to play this
-                game. You must also be using a chromium based browser (Chrome,
-                Edge, Brave, etc). This will not work on iPhone.
+                game. This has only been tested on a chromium based browser (Chrome,
+                Edge, Brave, etc). If you are using a mobile phone and can't hear anything, turn off silent mode.
               </p>
               <div className="my-2"></div>
               <h3 className="font-sans text-lg font-semibold">Instructions:</h3>
