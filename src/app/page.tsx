@@ -403,8 +403,7 @@ export default function Home() {
         <footer className="mt-8 w-full bg-gray-100 px-4 py-5 dark:bg-gray-700">
           <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
             <span className="text-sm text-gray-500 dark:text-gray-300">
-              © 2024 <a href="https://flowbite.com/">Arhan Busam</a>. All
-              Rights Reserved.
+              © 2024 Arhan Busam. All Rights Reserved.
             </span>
             <div className="flex space-x-5 rtl:space-x-reverse">
               <a
